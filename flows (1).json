@@ -1,0 +1,433 @@
+[
+    {
+        "id": "d1b30ae3187f7509",
+        "type": "inject",
+        "z": "beabf0d507a8e2cd",
+        "name": "Poll Every 3s",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "3",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 220,
+        "wires": [
+            [
+                "4d0685faf7ae1230"
+            ]
+        ]
+    },
+    {
+        "id": "4d0685faf7ae1230",
+        "type": "http request",
+        "z": "beabf0d507a8e2cd",
+        "name": "GET Security Data",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://smart-security-system-3e054-default-rtdb.asia-southeast1.firebasedatabase.app/.json?auth=2UFNvdlJttJl8cbmKi55muJIMGePOQTzZHuKq7AI",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 370,
+        "y": 120,
+        "wires": [
+            [
+                "3b66928d56bd4e84"
+            ]
+        ]
+    },
+    {
+        "id": "3b66928d56bd4e84",
+        "type": "function",
+        "z": "beabf0d507a8e2cd",
+        "name": "Parse Security Data",
+        "func": "var data = msg.payload;\nif (!data) { return null; }\n\nvar sensors = data.Sensors || {};\nvar command = data.Command || {};\n\nvar m0 = { payload: data.State || \"UNKNOWN\" };\nvar m1 = { payload: data.AlarmCause || \"none\" };\nvar m2 = { payload: data.FailedAttempts !== undefined ? data.FailedAttempts : 0 };\nvar m3 = { payload: sensors.Temperature };\nvar m4 = { payload: sensors.Distance };\nvar m5 = { payload: (command.Arm === \"ON\") };\n\nvar ts = data.Timestamp || {};\nvar m6 = { payload: \"N/A\" };\nif (ts.time) {\n    var d = new Date(ts.time * 1000);\n    m6.payload = d.toLocaleString(\"en-IN\", { timeZone: \"UTC\" });\n}\n\nreturn [m0, m1, m2, m3, m4, m5, m6];",
+        "outputs": 7,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 180,
+        "wires": [
+            [
+                "2ee5f52f6ce229b2"
+            ],
+            [
+                "1058d0d0d36ce1a1"
+            ],
+            [
+                "1daab1ca75fee103"
+            ],
+            [
+                "6dd43c91c413d98a"
+            ],
+            [
+                "a5c2d846d10f2153"
+            ],
+            [],
+            [
+                "76758766e6fea267"
+            ]
+        ]
+    },
+    {
+        "id": "2ee5f52f6ce229b2",
+        "type": "ui_text",
+        "z": "beabf0d507a8e2cd",
+        "group": "467aa523be642a30",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "name": "State Text",
+        "label": "System State",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 980,
+        "y": 60,
+        "wires": []
+    },
+    {
+        "id": "1058d0d0d36ce1a1",
+        "type": "ui_text",
+        "z": "beabf0d507a8e2cd",
+        "group": "467aa523be642a30",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Alarm Cause",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 990,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "1daab1ca75fee103",
+        "type": "ui_text",
+        "z": "beabf0d507a8e2cd",
+        "group": "467aa523be642a30",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Failed Attempts",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 1000,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "6dd43c91c413d98a",
+        "type": "ui_gauge",
+        "z": "beabf0d507a8e2cd",
+        "name": "",
+        "group": "467aa523be642a30",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Temperature",
+        "label": "Celsius",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "60",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 990,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "a5c2d846d10f2153",
+        "type": "ui_text",
+        "z": "beabf0d507a8e2cd",
+        "group": "467aa523be642a30",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Distance (cm)",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 1000,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "76758766e6fea267",
+        "type": "ui_text",
+        "z": "beabf0d507a8e2cd",
+        "group": "467aa523be642a30",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "name": "",
+        "label": "Last Updated",
+        "format": "{{msg.payload}}",
+        "layout": "row-spread",
+        "className": "",
+        "style": false,
+        "font": "",
+        "fontSize": 16,
+        "color": "#000000",
+        "x": 990,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "b3d9599d1c9e0713",
+        "type": "http request",
+        "z": "beabf0d507a8e2cd",
+        "name": "PATCH Arm Command",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "https://smart-security-system-3e054-default-rtdb.asia-southeast1.firebasedatabase.app/.json?auth=2UFNvdlJttJl8cbmKi55muJIMGePOQTzZHuKq7AI",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1600,
+        "y": 420,
+        "wires": [
+            [
+                "d223c89295e82db2"
+            ]
+        ]
+    },
+    {
+        "id": "d223c89295e82db2",
+        "type": "debug",
+        "z": "beabf0d507a8e2cd",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1760,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "8f20b4ab815467e0",
+        "type": "ui_button",
+        "z": "beabf0d507a8e2cd",
+        "name": "Arm Home Button",
+        "group": "467aa523be642a30",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Arm Home",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "ARM_HOME",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 1010,
+        "y": 360,
+        "wires": [
+            [
+                "bebaeb8401b26b22"
+            ]
+        ]
+    },
+    {
+        "id": "bebaeb8401b26b22",
+        "type": "function",
+        "z": "beabf0d507a8e2cd",
+        "name": "Build Arm Home Command",
+        "func": "msg.payload = { Command: { Mode: \"ARM_HOME\" } };\nmsg.headers = { \"Content-Type\": \"application/json\" };\nmsg.method = \"PATCH\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1300,
+        "y": 360,
+        "wires": [
+            [
+                "b3d9599d1c9e0713"
+            ]
+        ]
+    },
+    {
+        "id": "69f618dc622326fe",
+        "type": "ui_button",
+        "z": "beabf0d507a8e2cd",
+        "name": "Arm Away Button",
+        "group": "467aa523be642a30",
+        "order": 7,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Arm Away",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "payload": "ARM_AWAY",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "x": 1010,
+        "y": 420,
+        "wires": [
+            [
+                "b3c389da1345cb32"
+            ]
+        ]
+    },
+    {
+        "id": "b3c389da1345cb32",
+        "type": "function",
+        "z": "beabf0d507a8e2cd",
+        "name": "Build Arm Away Command",
+        "func": "msg.payload = { Command: { Mode: \"ARM_AWAY\" } };\nmsg.headers = { \"Content-Type\": \"application/json\" };\nmsg.method = \"PATCH\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1300,
+        "y": 420,
+        "wires": [
+            [
+                "b3d9599d1c9e0713"
+            ]
+        ]
+    },
+    {
+        "id": "6c42d45b6aa64a4d",
+        "type": "ui_text_input",
+        "z": "beabf0d507a8e2cd",
+        "name": "Passcode Input",
+        "label": "Enter Passcode",
+        "tooltip": "",
+        "group": "467aa523be642a30",
+        "order": 8,
+        "width": 0,
+        "height": 0,
+        "passthru": true,
+        "mode": "text",
+        "delay": 300,
+        "topic": "topic",
+        "sendOnBlur": true,
+        "className": "",
+        "topicType": "msg",
+        "x": 1000,
+        "y": 480,
+        "wires": [
+            [
+                "888f924b669c3d42"
+            ]
+        ]
+    },
+    {
+        "id": "888f924b669c3d42",
+        "type": "function",
+        "z": "beabf0d507a8e2cd",
+        "name": "Build Passcode Command",
+        "func": "msg.payload = { Command: { Passcode: msg.payload } };\nmsg.headers = { \"Content-Type\": \"application/json\" };\nmsg.method = \"PATCH\";\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1300,
+        "y": 480,
+        "wires": [
+            [
+                "b3d9599d1c9e0713"
+            ]
+        ]
+    },
+    {
+        "id": "467aa523be642a30",
+        "type": "ui_group",
+        "name": "Live Status",
+        "tab": "4eb864b8e27d4bf0",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "4eb864b8e27d4bf0",
+        "type": "ui_tab",
+        "name": "Security System",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "58412049252b9846",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
